@@ -3,7 +3,7 @@
 ENV=$1
 
 set -x
-mkdir ./tmp
+mkdir -p ./tmp
 
 fail () {
   echo "ERROR: Taito command execution failed"
@@ -19,15 +19,16 @@ fail () {
 
 # BASICS
 yes | taito install || fail
+npm run install-dev || fail      # NOTE: Quick fix
 taito init:$ENV --clean || fail
 
 # LINKS
 taito link client:dev || fail
 
 # QUALITY CONTROL
-# taito lint || fail
-# taito unit || fail
-# taito check deps || fail
+taito lint || fail
+taito unit || fail
+taito check deps || fail
 
 # INFORMATION
 taito info:$ENV || fail
@@ -39,10 +40,10 @@ taito secrets:$ENV || fail
 # CONTAINERS
 taito exec:server:$ENV echo OK || fail
 taito copy to:server:dev README.md /tmp/README.md || fail
-# (
-#   taito copy from:server:dev /tmp/README.md ./tmp/README.md && \
-#     [[ -f ./tmp/README.sql ]]
-# ) || fail
+(
+  taito copy from:server:dev /service/index.js ./tmp/index.js && \
+    [[ -f ./tmp/index.js ]]
+) || fail
 taito kill:server:$ENV || fail
 
 # DATABASES
