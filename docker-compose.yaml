@@ -1,0 +1,140 @@
+# NOTE: docker-compose taito plugin sets DC_PATH and DC_COMMAND to mitigate
+# slow volume mounts on Windows. They might also be used in some other purposes
+# in the future.
+
+version: '3.5'
+services:
+  taito-cli-test-ingress:
+    container_name: taito-cli-test-ingress
+    image: nginx:1.15-alpine
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "9854:80"
+    volumes:
+      - "./docker-nginx.conf:/etc/nginx/nginx.conf:delegated"
+
+  taito-cli-test-client:
+    container_name: taito-cli-test-client
+    build:
+      context: ./client
+      dockerfile: ${dockerfile}
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "8080"
+    volumes:
+      - "./client:${DC_PATH}/service:delegated"
+      - "./shared:${DC_PATH}/service/shared:delegated"
+      - "${DC_PATH}/service/node_modules"
+    secrets:
+      # NOTE: Database connection is for tests only
+      - DATABASE_PASSWORD
+      - EXAMPLE_SECRET
+    environment:
+      DC_COMMAND: ${DC_COMMAND}
+      HOST_UNAME: ${taito_host_uname}
+      COMMON_COMPANY: taito
+      COMMON_PROJECT: taito-cli-test
+      COMMON_PUBLIC_PORT: 9854
+      NODE_ENV: development
+      API_ROOT: ''
+      API_URL: /api
+      # NOTE: Database connection is for tests only
+      DATABASE_HOST: taito-cli-test-database
+      DATABASE_NAME: ${db_database_name}
+      DATABASE_USER: ${db_database_app_username}
+
+  taito-cli-test-server:
+    container_name: taito-cli-test-server
+    build:
+      context: ./server
+      dockerfile: ${dockerfile}
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "8080"
+    volumes:
+      - "./server:${DC_PATH}/service:delegated"
+      - "./shared:${DC_PATH}/service/shared:delegated"
+      - "${DC_PATH}/service/node_modules"
+    secrets:
+      - DATABASE_PASSWORD
+      - S3_KEY_SECRET
+      - EXAMPLE_SECRET
+    environment:
+      DC_COMMAND: ${DC_COMMAND}
+      HOST_UNAME: ${taito_host_uname}
+      COMMON_COMPANY: taito
+      COMMON_PROJECT: taito-cli-test
+      COMMON_PUBLIC_PORT: 9854
+      COMMON_DEBUG: 'false'
+      COMMON_LOG_FORMAT: text
+      COMMON_LOG_LEVEL: info      # trace, debug, info, warn, error, fatal
+      COMMON_ENV: local
+      SENTRY_DSN: #sentryDSN
+      API_PORT: 8080
+      API_BINDADDR: 0.0.0.0
+      DATABASE_HOST: taito-cli-test-database
+      DATABASE_NAME: ${db_database_name}
+      DATABASE_USER: ${db_database_app_username}
+      DATABASE_POOL_MIN: '1'
+      DATABASE_POOL_MAX: '10'
+      S3_URL: http://taito-cli-test-storage:9000/
+      S3_REGION: milkyway
+      S3_BUCKET: bucket
+      S3_KEY_ID: minio
+      S3_FORCE_PATH_STYLE: 'true'
+
+  # "EXTERNAL RESOURCES"
+
+  taito-cli-test-database:
+    container_name: taito-cli-test-database
+    image: postgres:9.6
+    restart: unless-stopped
+    networks:
+      - default
+    ports:
+      - "6077:5432"
+    secrets:
+      - DATABASE_PASSWORD
+    environment:
+      POSTGRES_DB: ${db_database_name}
+      POSTGRES_USER: ${db_database_app_username}
+      POSTGRES_PASSWORD_FILE: /run/secrets/DATABASE_PASSWORD
+    volumes:
+      - "./database:/docker-entrypoint-initdb.d:delegated"
+
+  taito-cli-test-storage:
+    container_name: taito-cli-test-storage
+    build:
+      context: ./storage
+      dockerfile: ${dockerfile}
+    restart: unless-stopped
+    command: server /service
+    networks:
+      - default
+    ports:
+      - "9000"
+    secrets:
+      - S3_KEY_SECRET
+    environment:
+      MINIO_ACCESS_KEY: minio
+      # MINIO requires key as environment variable?
+      MINIO_SECRET_KEY: ${taito_default_password}
+
+secrets:
+  DATABASE_PASSWORD:
+    file: ./secrets/${taito_env}/${db_database_app_secret}
+  S3_KEY_SECRET:
+    file: ./secrets/${taito_env}/${taito_project}-${taito_env}-storage-gateway.secret
+  EXAMPLE_SECRET:
+    file: ./secrets/${taito_env}/${taito_project}-${taito_env}-example.secret
+
+networks:
+  default:
+
+# EOF

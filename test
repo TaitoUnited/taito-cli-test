@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ENV=$1
+set -x
+
+taito status:$ENV || echo > failed
+# TODO: more commands
+
+if [[ -f failed ]]; then
+  echo "ERROR: Some of the tests failed"
+  exit 1
+fi

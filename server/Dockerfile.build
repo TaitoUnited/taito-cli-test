@@ -1,0 +1,42 @@
+# Builder and tester container for production build
+FROM node:10-alpine as builder
+ARG SERVICE_DIR=.
+ARG TARGET_ENV=prod
+RUN apk add --update-cache build-base python git fontconfig
+WORKDIR /service
+COPY ${SERVICE_DIR}/package.json \
+     ${SERVICE_DIR}/package-lock.* \
+     /service/
+ENV TARGET_ENV ${TARGET_ENV}
+ENV NODE_ENV development
+RUN npm ci --loglevel warn
+COPY ${SERVICE_DIR} /service
+RUN npm run lint
+RUN npm run unit
+RUN npm run build:prod
+
+# Production runtime container
+FROM node:10-alpine
+ARG BUILD_VERSION
+LABEL version=${BUILD_VERSION} \
+      company=taito \
+      project=taito-cli-test \
+      role=server
+ENV BUILD_VERSION ${BUILD_VERSION}
+ENV NODE_ENV production
+WORKDIR /service
+COPY --from=builder /build .
+COPY --from=builder /service/package.json .
+COPY --from=builder /service/package-lock.json .
+COPY --from=builder /service/node_modules ./node_modules
+
+# Delete development libraries and create node user if it doesn't exist
+RUN npm prune --production && \
+    addgroup -S -g 74839 node || \
+    adduser -S -u 74276 -s /bin/false node || \
+    addgroup node node || \
+    su node -s /bin/sh -c "node --version"
+
+USER node
+EXPOSE 8080
+CMD ["node", "./index.js"]

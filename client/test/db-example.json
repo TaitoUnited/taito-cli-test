@@ -1,0 +1,7 @@
+{
+  "DATABASE_HOST": "127.0.0.1",
+  "DATABASE_PORT": "5001",
+  "DATABASE_NAME": "taito_cli_test_dev",
+  "DATABASE_USER": "taito_cli_test_dev_app",
+  "DATABASE_PASSWORD": "get dev or test environment db password from Kubernetes"
+}

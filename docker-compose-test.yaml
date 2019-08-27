@@ -1,0 +1,87 @@
+# This file is used for running integration tests against a remote
+# environment. It is needed only if your test implementations require
+# a remote database access through a proxy, or secrets defined in the remote
+# environment.
+
+version: '3.5'
+services:
+  taito-cli-test-client-test:
+    container_name: taito-cli-test-client-test
+    image: taito-cli-test-client-test:latest
+    restart: unless-stopped
+    volumes:
+      - "./client:/service:delegated"
+      - "./shared:/service/shared:delegated"
+      - "/service/node_modules"
+    network_mode: "bridge"
+    secrets:
+      - DATABASE_PASSWORD
+    environment:
+      taito_running_tests: "true"
+
+  taito-cli-test-server-test:
+    container_name: taito-cli-test-server-test
+    image: taito-cli-test-server-test:latest
+    restart: unless-stopped
+    volumes:
+      - "./server:/service:delegated"
+      - "./shared:/service/shared:delegated"
+      - "/service/node_modules"
+    links:
+      - taito-cli-test-database-proxy
+      # - taito-cli-test-services-proxy
+    network_mode: "bridge"
+    secrets:
+      - DATABASE_PASSWORD
+    environment:
+      taito_running_tests: "true"
+
+  # Taito CLI container serves as a database proxy
+  taito-cli-test-database-proxy:
+    container_name: taito-cli-test-database-proxy
+    image: ${taito_image}
+    restart: unless-stopped
+    user: taito
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        cd /project
+        taito db proxy:${taito_env} 5432
+    ports:
+      - "5432"
+    network_mode: "bridge"
+    volumes:
+      - ".:/project:delegated"
+    environment:
+      taito_docker: 'true'
+      GOOGLE_APPLICATION_CREDENTIALS: ${taito_proxy_credentials_file}
+
+  # Taito CLI container serves as a tcp proxy for redis, etc.
+  # taito-cli-test-services-proxy:
+  #   container_name: taito-cli-test-services-proxy
+  #   image: ${taito_image}
+  #   restart: unless-stopped
+  #   user: taito
+  #   entrypoint:
+  #     - /bin/sh
+  #     - -c
+  #     - |
+  #       cd /project
+  #       taito forward:redis:${taito_env} 6379
+  #       # TIP: you can define multiple forwards like this:
+  #       # taito forward:kafka:${taito_env} 9092 &
+  #       # taito forward:redis:${taito_env} 6379 &
+  #       # tail -f /dev/null
+  #   ports:
+  #     - "6379"
+  #   network_mode: "bridge"
+  #   volumes:
+  #     - ".:/project:delegated"
+  #   environment:
+  #     taito_docker: "true"
+  #     GOOGLE_APPLICATION_CREDENTIALS: ${taito_proxy_credentials_file}
+
+secrets:
+  DATABASE_PASSWORD:
+    file: ./tmp/secrets/${taito_env}/${db_database_app_secret}

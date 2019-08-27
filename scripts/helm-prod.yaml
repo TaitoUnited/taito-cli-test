@@ -1,0 +1,9 @@
+# NOTE: Here you can override default settings for production environment.
+
+full-stack:
+  serviceDefaults:
+    cpuRequest: 10m
+    cpuLimit: 200m
+    memoryRequest: 70Mi
+    memoryLimit: 512Mi
+    # TODO enable autoscaling

@@ -1,0 +1,35 @@
+{
+  "presets": [
+    // TODO: consider adding tree-shakeability to material-ui
+    // https://github.com/mui-org/material-ui/issues/11281#issuecomment-389932873
+    // https://material-ui.com/guides/minimizing-bundle-size/
+    [
+      "@babel/preset-env",
+      {
+        "targets": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"],
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ],
+    "@babel/preset-typescript",
+    "@babel/preset-react"
+  ],
+
+  "plugins": [
+    "@babel/plugin-syntax-dynamic-import",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-proposal-class-properties",
+    "babel-plugin-styled-components",
+    "macros",
+    "react-hot-loader/babel"
+  ],
+
+  "env": {
+    "production": {
+      "plugins": ["transform-remove-console"]
+    },
+    "test": {
+      "plugins": ["dynamic-import-node", "syntax-class-properties"]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+node_modules
+test/reports
+test/screenshots
+test/videos
+test/db.json
+credentials
+*.log
+.DS_Store
+_build
+_build_git
+build
+*.swp
+.vscode
