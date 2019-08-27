@@ -20,7 +20,7 @@ Start your local development environment by running `taito kaboom`. Once the com
 3. Run `taito project apply`
 4. Commit and push changes
 
-* [ ] All done
+* [x] All done
 
 ## Your first remote environment (dev)
 
@@ -57,7 +57,7 @@ See it build and deploy:
 
 > If you have some trouble creating an environment, you can destroy it by running `taito env destroy:dev` and then try again with `taito env apply:dev`.
 
-* [ ] All done
+* [x] All done
 
 ## Blog example
 
@@ -65,7 +65,7 @@ The project template comes with a blog implementation that includes examples for
 
 The client GUI uses [Material-UI](https://material-ui-next.com/) component library by default. It's a good match with the [react-admin](https://github.com/marmelab/react-admin) GUI, but please consider also other alternatives based on customer requirements. For example [Semantic UI React](https://react.semantic-ui.com/), [React Bootstrap](https://react-bootstrap.github.io/) and [Elemental](http://elemental-ui.com/) are also good alternatives.
 
-* [ ] All done
+* [x] All done
 
 ---
 

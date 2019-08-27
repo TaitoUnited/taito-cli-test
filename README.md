@@ -5,6 +5,6 @@ Taito CLI integration test suite based on [full-stack-template](https://github.c
 Taito CLI is tested by:
 
 - Building and deploying this project normally using a CI/CD pipeline (see `cloudbuild.yaml`)
-- Running a bunch of Taito CLI commands against a remote environment (see `tests`)
+- Running a bunch of Taito CLI commands against a remote environment (see `test`)
 
-These tests can be run on any environment as Taito CLI image and environment details (Kubernetes, Postgres, etc.) are defined for the Google Cloud Build as build variables. If you want to use some other CI/CD for running the tests, just add an appropriate CI/CD script.
+These tests can be run on any environment as Taito CLI image and environment details (Cloud provider, Kubernetes, Postgres, etc.) are defined for the Google Cloud Build as build variables. If you want to use some other CI/CD for running the tests, just add an appropriate CI/CD script.

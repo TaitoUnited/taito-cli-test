@@ -19,7 +19,7 @@ taito_plugins="
   docker docker-compose:local kubectl:-local helm:-local
   postgres-db sqitch-db
   npm git-global links-global
-  sentry semantic-release:prod
+  semantic-release:prod
 "
 
 # Project labeling
