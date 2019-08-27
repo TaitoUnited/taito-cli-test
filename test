@@ -1,10 +1,92 @@
 #!/bin/bash
 
 ENV=$1
-set -x
 
-taito status:$ENV || echo > failed
-# TODO: more commands
+set -x
+mkdir ./tmp
+
+fail () {
+  echo "ERROR: Taito command execution failed"
+  echo > failed
+}
+
+# ------------------------------------------------------------------
+# Taito CLI commands in the order as shown by 'taito -h'
+# ------------------------------------------------------------------
+
+# TODO: Add more tests
+# TODO: Check command output, not just exit code
+
+# BASICS
+yes | taito install || fail
+taito init:$ENV --clean || fail
+
+# LINKS
+taito link client:dev || fail
+
+# QUALITY CONTROL
+# taito lint || fail
+# taito unit || fail
+# taito check deps || fail
+
+# INFORMATION
+taito info:$ENV || fail
+taito status:$ENV || fail
+taito secrets:$ENV || fail
+
+# APPLICATION CONTROL
+
+# CONTAINERS
+taito exec:server:$ENV echo OK || fail
+taito copy to:server:dev README.md /tmp/README.md || fail
+# (
+#   taito copy from:server:dev /tmp/README.md ./tmp/README.md && \
+#     [[ -f ./tmp/README.sql ]]
+# ) || fail
+taito kill:server:$ENV || fail
+
+# DATABASES
+taito db import:$ENV ./database/data/$ENV.sql || fail
+(
+  taito db dump:$ENV ./tmp/dump.sql && [[ -f ./tmp/dump.sql ]]
+) || fail
+taito db rebase:$ENV || fail
+taito db add: test -n 'test' || fail
+
+# STORAGES
+
+# MESSAGE QUEUES
+
+# VERSION CONTROL
+# taito env:dev || fail
+
+# DEPLOYMENT OPERATIONS
+
+# BUILDS
+# Already tested on cloudbuild.yaml
+
+# PROJECT TEMPLATES
+
+# PROJECT CONFIGURATION
+taito project docs || fail
+
+# PROJECT INFRASTRUCTURE MANAGEMENT
+# taito env info:dev || fail
+yes yyyyyyyyyyyyyy | taito env rotate:dev example || fail
+
+# ZONE INFRASTRUCTURE MANAGEMENT
+# Not tested here
+
+# PASSWORD SHARING
+# Not tested here
+
+# PROJECT MANAGEMENT
+
+# HOUR REPORTING
+
+# UTILS
+taito -q util random string: 30
+taito -q util random words: 3
 
 if [[ -f failed ]]; then
   echo "ERROR: Some of the tests failed"
