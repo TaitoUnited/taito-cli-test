@@ -27,7 +27,7 @@
     "pg-promise": "^9.1.0",
     "request": "2.88.0",
     "request-promise": "4.2.4",
-    "showdown": "1.9.0",
+    "showdown": "1.9.1",
     "stack-trace": "0.0.10",
     "unescape": "1.0.1",
     "uuid": "^3.3.3"
