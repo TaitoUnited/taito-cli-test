@@ -10,6 +10,10 @@ global:
   debug: false
 
 full-stack:
+  serviceAccountCreate: true
+  networkPolicyEnabled: false
+  podSecurityPolicyCreate: false
+
   persistence:
     enabled: false
     existingClaim:
@@ -25,7 +29,8 @@ full-stack:
     tls: true
     domains:
       - name: ${taito_domain}
-        altName: ${taito_altdomain}
+        altDomains:
+          - name: ${taito_altdomain}
 
   serviceDefaults:
     # Basics
@@ -119,6 +124,7 @@ full-stack:
       tier: backend
       livenessInitialDelay: 120
       db:
+        useProxy: true
         instance: ${taito_zone}:${taito_provider_region}:${db_database_instance}
         port: 5432
         proxySecret: ${taito_provider_db_proxy_secret}
