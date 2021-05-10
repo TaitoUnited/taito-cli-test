@@ -20,7 +20,7 @@
     "koa-basic-auth": "4.0.0",
     "koa-joi-router": "6.0.0",
     "koa-qs": "2.0.0",
-    "lodash": "4.17.15",
+    "lodash": "4.17.21",
     "moment": "2.24.0",
     "moment-timezone": "0.5.26",
     "mustache": "^3.0.2",
